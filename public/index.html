@@ -1,0 +1,31 @@
+<html>
+<link rel="stylesheet" type="text/css" href="index.css">
+
+<body>
+    <div id="app">
+        <h3>Upload to {{uploadURL}}</h3>
+        <form id='file-upload' v-on:submit="uploadFiles" v-on:change="filesListChanged">
+            <input id='file-input' type='file' multiple />
+            <button type='submit'>Upload</button>
+        </form>
+
+        <h3 v-if="filesToUpload.length > 0">TO Upload</h2>
+        <div class="fileToUpload" v-for="file in filesToUpload" v-bind:style="{ width: file.percentComplete + '%' }">
+            <span class="fileName">{{file.name}}</span>
+            <span class="percent" v-if="file.percentComplete > 0 && file.percentComplete < 100">{{file.percentComplete}}%</span>
+            <span class="percent" v-if="file.percentComplete == 100">{{file.uploadResult ? 'Uploaded' : 'Server is working...'}}</span>
+            <span class="size" v-if="file.percentComplete == 0">{{file.totalMb}} mb</span>
+            <span class="size" v-if="file.percentComplete > 0 && file.percentComplete < 100">{{file.loadedMb}}/{{file.totalMb}} mb</span>
+            <span class="size" v-if="file.percentComplete == 100">{{file.loadedMb}} mb</span>
+        </div>
+
+        <h3 v-if="uploadedFiles.length > 0">Uploaded</h2>
+        <div class="uploaded" v-for="filename in uploadedFiles">
+            <a v-bind:href="'uploads/' + filename">{{filename}}</a>
+        </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+    <script src="vueApp.js"></script>
+</body>
+
+</html>

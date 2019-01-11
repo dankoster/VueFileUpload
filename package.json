@@ -1,0 +1,12 @@
+{
+  "name": "vuefileupload",
+  "version": "1.0.0",
+  "description": "Understanding web file uploads",
+  "main": "nodeApp.js",
+  "author": "Dan Koster",
+  "license": "ISC",
+  "dependencies": {
+    "busboy": "^0.3.0",
+    "express": "^4.16.4"
+  }
+}
