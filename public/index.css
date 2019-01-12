@@ -1,24 +1,30 @@
+body{
+	font-family: sans-serif;
+}
+
 .fileToUpload {
-	width: 0%;
-	background-color: rgb(188, 232, 241);
 	white-space: nowrap;
 	margin-top: 5px;
+	background-color: rgb(140, 255, 140);
+	width: 0%;
 }
 
 	.fileToUpload .fileName {
-		margin-left:5px;
 		font-weight:bold;
-	}
-
-	.fileToUpload .percent {
-		margin-right: 10px;
-		float: right;
 	}
 
 	.fileToUpload .size {
 		margin-right: 10px;
-		float: right;
 		color:#808080;
+	}
+
+	.fileToUpload .percent {
+		margin-right: 10px;
+	}
+
+	.fileToUpload .error {
+		color: red;
+		font-weight: bold;
 	}
 
 .uploaded {
