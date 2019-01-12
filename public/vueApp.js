@@ -7,14 +7,12 @@ var app = new Vue({
 		uploadedFilesURL: '/uploadedfiles'
 	},
 	mounted: function () {
+		//Vue is ready to go and will execute this function once
 		this.getUploadedFiles()
 	},
 	methods: {
-		update: function (obj, prop, event) {
-			//https://stackoverflow.com/a/46925611
-			Vue.set(obj, prop, event.target.value);
-		},
 		filesListChanged: function (evnt) {
+			//The list of files to upload has changed
 			for (var i = 0; i < evnt.srcElement.files.length; i++) {
 				var file = evnt.srcElement.files[i]
 				file.percentComplete = 0
@@ -28,6 +26,7 @@ var app = new Vue({
 			}
 		},
 		uploadFiles: function (evnt) {
+			//User clicked the "Upload" button
 			evnt.preventDefault();
 			var scope = this;
 			this.filesToUpload.forEach(function (file) {
@@ -38,7 +37,16 @@ var app = new Vue({
 			var formData = new FormData();
 			var request = new XMLHttpRequest();
 
+			//this is to help with some odd behaviour when there are errors
+			var closure = {
+				file, 
+				previousPercent: 0,
+				previousMb: 0
+			}
+
 			request.upload.addEventListener("progress", function (e) {
+				closure.previousPercent = file.percentComplete
+				closure.previousMb = file.loadedMb
 				var percent = (e.loaded / e.total) * 100
 				file.percentComplete = Math.round(percent)
 				file.loadedMb = (e.loaded / 1048576).toFixed(2)
@@ -54,12 +62,14 @@ var app = new Vue({
 				app.getUploadedFiles()
 			}, false);
 			request.addEventListener("error", function (e) {
-				console.log("Upload Failed");
-				debugger
+				console.log({ error: "Upload Failed", file: closure.file, event: e });
+				closure.file.error = "Error!"
+				closure.file.percentComplete = closure.previousPercent
+				closure.file.loadedMb = closure.previousMb
+				app.$forceUpdate()
 			}, false);
 			request.addEventListener("abort", function (e) {
 				console.log("Upload Aborted");
-				debugger
 			}, false);
 
 			formData.set('file', file);
@@ -67,21 +77,19 @@ var app = new Vue({
 			request.send(formData);
 		},
 		getUploadedFiles: function () {
-			var scope = this
-			fetch(this.uploadedFilesURL)
-				.then(response => {
-					response.json().then(function (data) {
-						data.forEach(function (file) {
-							//upsert
-							var index = scope.uploadedFiles.findIndex(name => name === file)
-							if (index == -1)
-								scope.uploadedFiles.push(file)
-							else
-								scope.uploadedFiles.splice(index, 1, file)
-						})
-					})
+			var vueApp = this
+			var request = new XMLHttpRequest();
+			request.addEventListener("load", function () {
+				var data = JSON.parse(this.responseText)
+				data.forEach(function (file) {
+					//upsert
+					var index = vueApp.uploadedFiles.findIndex(name => name === file)
+					if (index == -1) vueApp.uploadedFiles.push(file)
+					else vueApp.uploadedFiles.splice(index, 1, file)
 				})
-				.catch(error => { console.log(error) })
+			});
+			request.open("GET", this.uploadedFilesURL);
+			request.send();
 		}
 	}
 })
